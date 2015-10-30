@@ -81,15 +81,15 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
       #Vault setup
       Vault::Client.new(address: config[ip], token: config[:vault_token])
       #Check seal status, return true if sealed
-      begin
+      #begin
         status = Vault.sys.seal_status.sealed
         if status == false
           return false
         else
           return true
-        end
-      rescue => error
-        return true
+      #   end
+      # rescue => error
+      #   return true
       end
     end
 end
