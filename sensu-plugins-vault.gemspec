@@ -1,22 +1,25 @@
 require File.expand_path(File.dirname(__FILE__)) + '/lib/sensu-plugin'
 
 Gem::Specification.new do |s|
-  s.name          = 'sensu-plugin'
+  s.name          = 'sensu-plugins-vault'
   s.version       = Sensu::Plugin::VERSION
   s.platform      = Gem::Platform::RUBY
-  s.authors       = ['Decklin Foster', 'Sean Porter']
-  s.email         = ['decklin@red-bean.com', 'portertech@gmail.com']
-  s.homepage      = 'https://github.com/sonian/sensu-plugin'
-  s.summary       = 'Sensu Plugins'
+  s.authors       = ['Barry Martin']
+  s.email         = ['nyxcharon@gmail.com']
+  s.homepage      = 'https://github.com/nyxcharon/sensu-plugins-vault.git'
+  s.summary       = 'Sensu Plugins for Hashicorps Vault'
   s.description   = 'Plugins and helper libraries for Sensu, a monitoring framework'
   s.license       = 'MIT'
   s.has_rdoc      = false
   s.require_paths = ['lib']
-  s.files         = Dir['lib/**/*.rb']
   s.test_files    = Dir['test/*.rb']
+  s.executables   = Dir.glob('bin/**/*').map { |file| File.basename(file) }
+  s.files         = Dir.glob('{bin,lib}/**/*')
 
   s.add_dependency('json')
   s.add_dependency('mixlib-cli', '>= 1.5.0')
+  s.add_dependency('resolv')
+  s.add_dependency('vault')
 
   s.add_development_dependency('rake')
   s.add_development_dependency('minitest')
