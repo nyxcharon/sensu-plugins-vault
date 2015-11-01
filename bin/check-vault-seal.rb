@@ -51,6 +51,12 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
       long: '--verify',
       default: false
 
+    option :vault_port,
+      description: 'The port vault uses',
+      short: '-p PORT',
+      long: '--port',
+      default: '8200'
+
     def run
 
       addresses = Array.new
@@ -79,17 +85,18 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
 
     def issealed(ip)
       #Vault setup
-      Vault::Client.new(address: config[ip], token: config[:vault_token])
+      client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+
       #Check seal status, return true if sealed
-      #begin
-        status = Vault.sys.seal_status.sealed
+      begin
+        status = client.sys.seal_status.sealed
         if status == false
           return false
         else
           return true
-      #   end
-      # rescue => error
-      #   return true
+      end
+       rescue => error
+         return true
       end
     end
 end

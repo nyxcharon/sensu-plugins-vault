@@ -51,6 +51,12 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
       long: '--verify',
       default: false
 
+    option :vault_port,
+      description: 'The port vault uses',
+      short: '-p PORT',
+      long: '--port',
+      default: '8200'
+
 
     def run
       addresses = Array.new
@@ -64,7 +70,7 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
 
       failed = Array.new
       addresses.each do |addr|
-        if hasleader(addr)
+        if not hasleader(addr)
           failed.push(addr)
         end
       end
@@ -78,17 +84,18 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
 
     def hasleader(ip)
       #Vault setup
-      Vault::Client.new(address: config[ip], token: config[:vault_token])
-      #Check seal status, return true if sealed
+      client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+
+     #Check for leader, return true if it has one
       begin
-        status = Vault.sys.leader.leader_address
+        status = client.sys.leader.leader_address
         if not status.nil?
-          return false
-        else
           return true
+        else
+          return false
         end
       rescue => error
-        return true
+        return false
       end
     end
 end
