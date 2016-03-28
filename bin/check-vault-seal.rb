@@ -57,6 +57,20 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
       long: '--port',
       default: '8200'
 
+    option :ca,
+           description: 'Path to a PEM encoded CA cert file to use to
+                         verify the Vault server SSL certificate.',
+           long: '--ca CA',
+           default: nil
+
+    option :insecure,
+           description: 'change SSL verify mode to false',
+           long: '--insecure'
+
+    option :ssl,
+           description: 'use HTTPS (default false)',
+           long: '--ssl'
+
     def run
 
       addresses = Array.new
@@ -85,7 +99,16 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
 
     def issealed(ip)
       #Vault setup
-      client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+      if config[:ssl]
+        client = Vault::Client.new(
+          address: "https://#{ip}:#{config[:vault_port]}",
+          token: config[:vault_token],
+          ssl_ca_cert: config[:ca],
+          ssl_verify: (config[:insecure] ? false : true)
+        )
+      else
+        client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+      end
 
       #Check seal status, return true if sealed
       begin
