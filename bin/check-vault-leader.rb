@@ -123,7 +123,7 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
           ssl_verify: (config[:insecure] ? false : true)
         )
       else
-        client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+        client = Vault::Client.new(address: "http://#{address}:#{config[:vault_port]}", token: config[:vault_token])
       end
 
      #Check for leader, return true if it has one
