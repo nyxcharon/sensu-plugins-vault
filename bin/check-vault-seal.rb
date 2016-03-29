@@ -134,8 +134,8 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
           return false
         else
           return true
-      end
-       rescue => error
+        end
+      rescue => error
          return true
       end
     end
