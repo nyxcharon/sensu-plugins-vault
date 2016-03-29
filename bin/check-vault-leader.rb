@@ -45,6 +45,13 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
       long: '--address',
       required: true
 
+    option :use_hostname,
+      description: 'Use hostname instead of IP for vault servers.
+                    Use this option to verify Vault server SSL certificates
+                    (if --ssl is set to true) if they are issued with hostname.
+                    Default is false',
+      long: '--use-hostname'
+
     option :verify_all,
       description: 'Verify all vault host',
       short: '-v True',
@@ -57,15 +64,39 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
       long: '--port',
       default: '8200'
 
+    option :ca,
+      description: 'Path to a PEM encoded CA cert file to use to
+                    verify the Vault server SSL certificate.',
+      long: '--ca CA',
+      default: nil
+
+    option :insecure,
+      description: 'change SSL verify mode to false. Not recommended',
+      long: '--insecure'
+
+    option :ssl,
+      description: 'use HTTPS (default false)',
+      long: '--ssl'
+
 
     def run
       addresses = Array.new
-      if config[:verify_all] == 'true'
-        Resolv.each_address(config[:vault_address]) do |addr|
-          addresses.push(addr)
+      if config[:use_hostname]
+        if config[:verify_all] == 'true'
+          config[:vault_address].each do |addr|
+            addresses.push(addr)
+          end
+        else
+          addresses = Array(config[:vault_address])
         end
       else
-        addresses = Array(config[:vault_address])
+        if config[:verify_all] == 'true'
+          Resolv.each_address(config[:vault_address]) do |addr|
+            addresses.push(addr)
+          end
+        else
+          addresses = Array(config[:vault_address])
+        end
       end
 
       failed = Array.new
@@ -82,9 +113,18 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
       end
     end
 
-    def hasleader(ip)
+    def hasleader(address)
       #Vault setup
-      client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+      if config[:ssl]
+        client = Vault::Client.new(
+          address: "https://#{address}:#{config[:vault_port]}",
+          token: config[:vault_token],
+          ssl_ca_cert: config[:ca],
+          ssl_verify: (config[:insecure] ? false : true)
+        )
+      else
+        client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+      end
 
      #Check for leader, return true if it has one
       begin
