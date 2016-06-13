@@ -57,6 +57,11 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
       long: '--port',
       default: '8200'
 
+    option :ca_path,
+      description: 'Path to ca certificate',
+      short: '-c PATH',
+      long: '--ca PATH'
+
     def run
 
       addresses = Array.new
@@ -85,8 +90,11 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
 
     def issealed(ip)
       #Vault setup
-      client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
-
+      if config[:ca_path].nil?
+        client = Vault::Client.new(address: "#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+      else
+        client = Vault::Client.new(address: "#{ip}:#{config[:vault_port]}", token: config[:vault_token], ssl_ca_cert: config[:ca_path])
+      end
       #Check seal status, return true if sealed
       begin
         status = client.sys.seal_status.sealed
@@ -95,7 +103,7 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
         else
           return true
       end
-       rescue => error
+       rescue
          return true
       end
     end
