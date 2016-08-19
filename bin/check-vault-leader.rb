@@ -72,7 +72,6 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
       else
         addresses = Array(config[:vault_address])
       end
-
       failed = Array.new
       addresses.each do |addr|
         if not hasleader(addr)
@@ -90,9 +89,9 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
     def hasleader(ip)
       #Vault setup
       if config[:ca_path].nil?
-        client = Vault::Client.new(address: "#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+        client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
       else
-        client = Vault::Client.new(address: "#{ip}:#{config[:vault_port]}", token: config[:vault_token], ssl_ca_cert: config[:ca_path])
+        client = Vault::Client.new(address: "https://#{ip}:#{config[:vault_port]}", token: config[:vault_token], ssl_ca_cert: config[:ca_path])
       end
      #Check for leader, return true if it has one
       begin

@@ -91,9 +91,9 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
     def issealed(ip)
       #Vault setup
       if config[:ca_path].nil?
-        client = Vault::Client.new(address: "#{ip}:#{config[:vault_port]}", token: config[:vault_token])
+        client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
       else
-        client = Vault::Client.new(address: "#{ip}:#{config[:vault_port]}", token: config[:vault_token], ssl_ca_cert: config[:ca_path])
+        client = Vault::Client.new(address: "https://#{ip}:#{config[:vault_port]}", token: config[:vault_token], ssl_ca_cert: config[:ca_path])
       end
       #Check seal status, return true if sealed
       begin
