@@ -97,7 +97,7 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
       end
       #Check seal status, return true if sealed
       begin
-        status = client.sys.seal_status.sealed
+        status = client.sys.seal_status.sealed?
         if status == false
           return false
         else

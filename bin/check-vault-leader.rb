@@ -95,7 +95,7 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
       end
      #Check for leader, return true if it has one
       begin
-        status = client.sys.leader.leader_address
+        status = client.sys.leader.address
         if not status.nil?
           return true
         else
