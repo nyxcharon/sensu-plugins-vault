@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency('json')
   s.add_dependency('mixlib-cli', '>= 1.5.0')
-  s.add_dependency('vault')
+  s.add_dependency('vault', '>= 0.5.0')
 
   s.add_development_dependency('rake')
   s.add_development_dependency('minitest')
