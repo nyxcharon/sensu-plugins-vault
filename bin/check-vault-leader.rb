@@ -70,6 +70,13 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
       boolean: true,
       default: false
 
+    option :ssl_verify,
+      description: 'Should client verify the ssl certificate',
+      short: '-l',
+      long: '--ssl-verify',
+      boolean: true,
+      default: false
+
     def run
       addresses = Array.new
       if config[:verify_all]
@@ -99,6 +106,9 @@ class CheckVaultLeader< Sensu::Plugin::Check::CLI
         client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
       else
         client = Vault::Client.new(address: "https://#{ip}:#{config[:vault_port]}", token: config[:vault_token], ssl_ca_cert: config[:ca_path])
+      end
+      if config[:ssl_verify]
+        client.ssl_verify = false
       end
      #Check for leader, return true if it has one
       begin
