@@ -47,8 +47,9 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
 
     option :verify_all,
       description: 'Verify all vault host',
-      short: '-v True',
+      short: '-v',
       long: '--verify',
+      boolean: true,
       default: false
 
     option :vault_port,
@@ -62,10 +63,17 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
       short: '-c PATH',
       long: '--ca PATH'
 
+    option :ssl,
+      description: 'Should client use ssl to connect',
+      short: '-s',
+      long: '--ssl',
+      boolean: true,
+      default: false
+
     def run
 
       addresses = Array.new
-      if config[:verify_all] == 'true'
+      if config[:verify_all]
         Resolv.each_address(config[:vault_address]) do |addr|
           addresses.push(addr)
         end
@@ -85,12 +93,11 @@ class CheckVaultSeal< Sensu::Plugin::Check::CLI
       else
         critical "Problems found with vault server(s) #{failed}"
       end
-
     end
 
     def issealed(ip)
       #Vault setup
-      if config[:ca_path].nil?
+      if config[:ssl] == false
         client = Vault::Client.new(address: "http://#{ip}:#{config[:vault_port]}", token: config[:vault_token])
       else
         client = Vault::Client.new(address: "https://#{ip}:#{config[:vault_port]}", token: config[:vault_token], ssl_ca_cert: config[:ca_path])
